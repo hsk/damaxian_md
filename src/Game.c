@@ -9,6 +9,7 @@
 #include "Bullet.h"
 #include "Back.h"
 #include "score.h"
+#include "Sound.h"
 // 変数の定義
 u8 gameFlag;   // フラグ
 static u8 gameCount;   // カウント
@@ -44,6 +45,11 @@ void GameUpdate(void) { // ゲームを更新する
 static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
     SystemClearSprite();
+    // 演奏の停止
+    soundRequest[0] = (void*)mmlNull;
+    soundRequest[1] = (void*)mmlNull;
+    soundRequest[2] = (void*)mmlNull;
+    soundRequest[3] = (void*)mmlNull;
     appTimer = 0x3000;
     appRate = 0x10;
     appScore = 0x0;
@@ -70,11 +76,15 @@ static void GameLoad(void) { // ゲームをロードする
 static void GameStart(void) { // ゲームを開始する
     if (appPhase == 0) {// 初期化
         VDP_drawText("START!",12,12);
+        // 演奏の開始
+        soundRequest[0] = (void*)mmlStartChannel0;
+        soundRequest[1] = (void*)mmlStartChannel1;
+        soundRequest[2] = (void*)mmlStartChannel2;
         // フラグの設定
         gameFlag &= ~((1<<GAME_FLAG_PLAYABLE)|(1<<GAME_FLAG_PAUSE)|(1<<GAME_FLAG_STATUS));
         appPhase++; // 状態の更新
     }
-    if (++appPhase < 60) return;
+    if (soundRequest[0]||soundPlay[0]) return;
     VDP_drawText("                  ",6,12);
     appState = GAME_STATE_PLAY; // 状態の更新
     appPhase = APP_PHASE_NULL;
@@ -140,15 +150,20 @@ static void GameOver(void) { // ゲームオーバーになる
 static void GameHiscore(void) { // ハイスコアを更新する
     if (appPhase==0) {// 初期化
         VDP_drawText("HI SCORE",11,12);
+        // 演奏の開始
+        soundRequest[0] = (void*)mmlHiScoreChannel0;
+        soundRequest[1] = (void*)mmlHiScoreChannel1;
+        soundRequest[2] = (void*)mmlHiScoreChannel2;
         // フラグの設定
         gameFlag &= ~((1<<GAME_FLAG_PLAYABLE)|(1<<GAME_FLAG_PAUSE)|(1<<GAME_FLAG_STATUS));
         appPhase++;// 状態の更新
     }
     // ハイスコアの処理
-    if (++appPhase < 60) return;
-    VDP_drawText("          ",10,12);
-    appState = GAME_STATE_UNLOAD;// 状態の更新
-    appPhase = APP_PHASE_NULL;
+    if (!(soundRequest[0]||soundPlay[0])) {// 演奏の終了
+        VDP_drawText("          ",10,12);
+        appState = GAME_STATE_UNLOAD;// 状態の更新
+        appPhase = APP_PHASE_NULL;
+    }
 }
 static void GameUnload(void) { // ゲームをアンロードする
     if (appPhase == 0) {// 初期化

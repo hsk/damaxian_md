@@ -1,6 +1,7 @@
 #include "bios.h"
 #include "gfx.h"
 #include "game.h"
+#include "sound.h"
 u16 input,trigger;
 
 volatile u8 flg;
@@ -156,6 +157,7 @@ void SystemTransferSprite(void) {
     }
     vdpSpriteCache[vdpPos-1].link=0;
     wait();
+    SystemUpdateSound();
     //VDP_updateSprites(vdpPos,DMA);
     //DMA_transfer(DMA, DMA_VRAM, vdpSpriteCache, VDP_SPRITE_TABLE, (sizeof(VDPSprite) * vdpPos) / 2, 2);
     if (!(gameFlag & (1 << GAME_FLAG_PAUSE))) 

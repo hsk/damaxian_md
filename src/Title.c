@@ -3,9 +3,14 @@
 #include "App.h"
 #include "Title.h"
 #include "Back.h"
+#include "Sound.h"
 u8 title_n;
 u8 title_x;
 void TitleInitialize(void) {
+    soundRequest[0] = (void*)mmlNull;// 演奏の停止
+    soundRequest[1] = (void*)mmlNull;
+    soundRequest[2] = (void*)mmlNull;
+    soundRequest[3] = (void*)mmlNull;
     title_x = 0;
     title_n = 0;
     appState = TITLE_STATE_MOVE;
@@ -23,12 +28,14 @@ void TitleMove(void) {
     }
     if(input&BUTTON_START) {
       appState = TITLE_STATE_LOOP;
-      appPhase = 0;
+      soundRequest[0] = (void*)mmlTitleStartChannel0;// 演奏の開始
+      soundRequest[1] = (void*)mmlTitleStartChannel1;
+      soundRequest[2] = (void*)mmlTitleStartChannel2;
   }
 }
 void TitleLoop(void) {
   // 待機の完了待ち
-  if (++appPhase < 60) return;
+  if (soundRequest[0]||soundPlay[0]) return;
   appMode = APP_MODE_GAME;
   appState = 0;
   VDP_drawText("                    ",7,10);

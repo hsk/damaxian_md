@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Ship.h"
 #include "Shot.h"
+#include "Sound.h"
 // 変数の定義
 SHIP ship; // パラメータ
 void ShipInitialize(void) { // 自機を初期化する
@@ -57,6 +58,7 @@ static void ShipBomb(void) { // 自機が爆発する
     if(ship.phase==0) {//初期化
         ship.nodamage = 0x80;// ノーダメージの設定
         ship.animation = 0;// アニメーションの設定
+        soundRequest[0] = (void*)mmlBombChannel0; // 演奏の開始
         ship.phase++;// 状態の更新
     }
     // 爆発の処理

@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Ship.h"
 #include "Shot.h"
+#include "Sound.h"
 // 変数の定義
 SHOT shots[SHOT_SIZE]; // パラメータ
 void ShotInitialize(void) {// ショットを初期化する
@@ -19,6 +20,7 @@ static void ShotMove(SHOT* shot) { // ショットが移動する
     if (shot->phase == 0) {// 初期化
         shot->x = ship.x;// 位置の初期化
         shot->y = ship.y;
+        soundRequest[0] = (void*)mmlShotChannel0;// 演奏の開始
         shot->phase++;// 状態の更新
     }
     s16 a = shot->y = shot->y-FIX16(4);// 移動

@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "Ship.h"
 #include "Enemy.h"
+#include "Sound.h"
 // 定数の定義
 // 敵データ
 extern u8 enemyPointTable[];
@@ -107,6 +108,7 @@ static void EnemyTurn(ENEMY* ix) { // 敵がターンする
     if (ix->phase == 0) {
         ix->turn = 0x02;// 回転の設定
         if ((random()&0b00010000) == 0) ix->turn = 0xfe;
+        soundRequest[1] = (void*)mmlEnemyTurnChannel1;// 演奏の開始
         ix->phase++;// 状態の更新
     }
     ix->angle += ix->turn;// 方向の更新
@@ -143,6 +145,7 @@ static void EnemyBomb(ENEMY* ix) { // 敵が爆発する
     if (ix->phase==0) {// 初期化処理
         ix->nodamage = 0x80;// ノーダメージの設定
         ix->animation = 0;// アニメーションの設定
+        soundRequest[2] = (void*)mmlEnemyBombChannel2;// 演奏の開始
         ix->phase++;// 状態の更新
     }
     ix->animation++;// アニメーションの更新
