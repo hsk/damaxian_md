@@ -4,17 +4,21 @@
 #include "App.h"
 #include "Game.h"
 #include "Back.h"
+#include "score.h"
 // 変数の定義
 u8 appMode;         // モード
 u8 appState;        // 状態
 u8 appPhase;
+u32 appTimer;
 void AppInitialize(void) { // アプリケーションを初期化する
     // アプリケーションの初期化
     appMode = APP_MODE_LOAD;// モードの初期化
+    appTimer = 0;
 }
 static void AppLoad(void) { // アプリケーションを読み込む
     BackLoad();
     BackUpdate();
+    score_update();
     appMode = APP_MODE_GAME;// モードの更新
     appState = 0;// 状態の更新
 }

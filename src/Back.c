@@ -22,6 +22,7 @@ void BackLoad(void) { // 背景をロードする
 
     VDP_setTextPriority(1);
     VDP_setTextPalette(PAL1);
+    VDP_drawText("_",31,22);
 }
 void BackUpdate(void) { // 背景を更新する
     for (int i = 0; i < 15; i++) {
