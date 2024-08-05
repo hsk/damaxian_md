@@ -1,5 +1,6 @@
 // Enemy.c : ゲーム画面／敵
 #include "bios.h"
+#include "Math.h"
 #include "App.h"
 #include "Game.h"
 #include "Ship.h"

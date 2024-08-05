@@ -1,10 +1,12 @@
 // Game.c : ゲーム画面
 #include "bios.h"
+#include "Math.h"
 #include "App.h"
 #include "Game.h"
 #include "Ship.h"
 #include "Shot.h"
 #include "Enemy.h"
+#include "Bullet.h"
 // 変数の定義
 u8 gameFlag;   // フラグ
 static void GameInitialize(void);
@@ -21,6 +23,7 @@ void GameUpdate(void) { // ゲームを更新する
     ShipUpdate();   // 自機の更新
     ShotUpdate();   // ショットの更新
     EnemyUpdate();  // 敵の更新
+    BulletUpdate(); // 弾の更新
 }
 static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
@@ -28,6 +31,7 @@ static void GameInitialize(void) { // ゲームを初期化する
     ShipInitialize();   // 自機の初期化
     ShotInitialize();   // ショットの初期化
     EnemyInitialize();  // 敵の初期化
+    BulletInitialize(); // 弾の初期化
     gameFlag = 0; // フラグの初期化
     // 状態の更新
     appState = GAME_STATE_LOAD;
@@ -70,6 +74,7 @@ static void GamePlay(void) { // ゲームをプレイする
     GameCheckShotEnemy();
 }
 
+static void GameShootBack(ENEMY* ix);
 static void GameCheckShotEnemy(void) { // ショットと敵のヒットチェックを行う
     for(SHOT* shot = shots;shot<&shots[SHOT_SIZE];shot++) {// ショットの走査
         if (shot->state == SHOT_STATE_NULL) continue; // ショットの存在
@@ -85,7 +90,23 @@ static void GameCheckShotEnemy(void) { // ショットと敵のヒットチェ�
             ix->nodamage = 0x80;// 敵のノーダメージの更新
             ix->state = ENEMY_STATE_BOMB;// 敵の状態の更新
             ix->phase = APP_PHASE_NULL;
+            GameShootBack(ix);// 敵の撃ち返し
             shot->state = SHOT_STATE_NULL;// ショットの状態の更新
         }
     }
+}
+static void GameShootBack(ENEMY* ix) { // 敵が弾を打ち返す
+    // 敵が自機に近い場合は撃ち返さない
+    if (ship.y-FIX16(0x20) < ix->y) {
+        s16 a = ship.x-FIX16(0x18);
+        if (a < ix->x && ix->x <= a+FIX16(0x30)) return;
+    }
+    u16 angle = atan2Fix16(ship.x - ix->x,ship.y - ix->y);
+    BULLET* iy=BulletEntry(0x10);
+    if (iy==NULL) return;
+    // 弾の位置の設定
+    iy->x = ix->x;
+    iy->y = ix->y;
+    iy->spx = cosFix16(angle);
+    iy->spy = sinFix16(angle);
 }

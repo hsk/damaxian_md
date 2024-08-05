@@ -1,5 +1,6 @@
 // App.c : アプリケーション
 #include "bios.h"
+#include "Math.h"
 #include "App.h"
 #include "Game.h"
 // 変数の定義
