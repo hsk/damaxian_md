@@ -8,13 +8,16 @@ SHIP ship; // パラメータ
 void ShipInitialize(void) { // 自機を初期化する
     ship.state = SHIP_STATE_PLAY; // 状態の設定
     ship.phase = 0;
+    ship.nodamage = 0x80;// ノーダメージの設定
 }
 static void ShipNull(void);
 static void ShipPlay(void);
+static void ShipBomb(void);
 void ShipUpdate(void) { // 自機を更新する
     u8 a = ship.state;
     if      (a == SHIP_STATE_NULL) ShipNull(); // 自機はなし
     else if (a == SHIP_STATE_PLAY) ShipPlay(); // 操作
+    else                           ShipBomb(); // 爆発
 }
 static void ShipNull(void) { // 自機はなし
 }
@@ -22,8 +25,10 @@ static void ShipPlay(void) { // 自機を操作する
     if (ship.phase==0) {// 初期化
         ship.x = FIX16(0x60);// 位置の設定
         ship.y = FIX16(224+8);
+        ship.nodamage = 0x80;// ノーダメージの設定
         ship.phase++;// 状態の更新
     }// 待機処理
+    if (ship.nodamage) ship.nodamage--; // ノーダメージの更新
     // 自機を定位置に移動
     if (ship.y >= FIX16(0xc1)) {
         ship.y-=FIX16(1);
@@ -46,5 +51,21 @@ static void ShipPlay(void) { // 自機を操作する
         }
     }
     // 描画の開始
-    SystemSetSprite(0, ship.x,ship.y);
+    SystemSetSprite((ship.nodamage & 2)>>1, ship.x,ship.y);
+}
+static void ShipBomb(void) { // 自機が爆発する
+    if(ship.phase==0) {//初期化
+        ship.nodamage = 0x80;// ノーダメージの設定
+        ship.animation = 0;// アニメーションの設定
+        ship.phase++;// 状態の更新
+    }
+    // 爆発の処理
+    // アニメーションの更新
+    ship.animation++;
+    if (ship.animation==0x1f) {
+        ship.state = SHIP_STATE_PLAY; // 状態の更新
+        ship.phase = 0;
+    }
+    // 描画の開始
+    SystemSetSprite(4+((ship.animation >> 3)&3),ship.x,ship.y);
 }

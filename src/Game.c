@@ -59,6 +59,8 @@ static void GameStart(void) { // ゲームを開始する
     appPhase = APP_PHASE_NULL;
 }
 static void GameCheckShotEnemy(void);
+static void GameCheckShipBullet(void);
+static void GameCheckShipEnemy(void);
 static void GamePlay(void) { // ゲームをプレイする
     if (appPhase == 0) {// 初期化
         // フラグの設定
@@ -72,6 +74,8 @@ static void GamePlay(void) { // ゲームをプレイする
     }
     if (gameFlag & (1<<GAME_FLAG_PAUSE)) return; // 一時停止
     GameCheckShotEnemy();
+    GameCheckShipBullet(); // 自機と弾のヒットチェック
+    GameCheckShipEnemy();  // 自機と敵のヒットチェック
 }
 
 static void GameShootBack(ENEMY* ix);
@@ -93,6 +97,43 @@ static void GameCheckShotEnemy(void) { // ショットと敵のヒットチェ�
             GameShootBack(ix);// 敵の撃ち返し
             shot->state = SHOT_STATE_NULL;// ショットの状態の更新
         }
+    }
+}
+static void GameCheckShipBullet(void) { // 自機と弾のヒットチェックを行う
+    if (ship.nodamage) return;// 自機の存在
+    for (BULLET* ix = bullets; ix<&bullets[BULLET_SIZE]; ix++) {// 弾の走査
+        if (ix->state == BULLET_STATE_NULL) continue;// 弾の存在
+        // ヒットチェック
+        s16 a = ix->x-ship.x;
+        if (a < 0) a = -a;
+        if (a >= FIX16(4)) continue;
+        a = ix->y - ship.y;
+        if (a < 0) a = -a;
+        if (a >= FIX16(4)) continue;
+        ix->state=BULLET_STATE_NULL;// 弾の状態の更新
+        ix->next = free_bullet;free_bullet=ix;
+        ship.state = SHIP_STATE_BOMB;// 自機の状態の更新
+        ship.phase = APP_PHASE_NULL;
+    }
+}
+static void GameCheckShipEnemy(void) { // 自機と敵のヒットチェックを行う
+    if (ship.nodamage)return;// 自機の存在
+    for (ENEMY* ix = enemies;ix<&enemies[ENEMIES_SIZE];ix++) {// 敵の走査
+        if (ix->nodamage) continue;// 敵の存在
+        // ヒットチェック X
+        s16 a = ix->x-ship.x;
+        if (a < 0) a = -a;
+        if (a >= FIX16(6)) continue;
+        // ヒットチェック Y
+        a = ix->y-ship.y;
+        if (a < 0) a = -a;
+        if (a >= FIX16(6)) continue;
+        // 更新
+        ix->nodamage = 0x80; // 敵のノーダメージの更新
+        ix->state = ENEMY_STATE_BOMB;// 敵の状態の更新
+        ix->phase = APP_PHASE_NULL;
+        ship.state = SHIP_STATE_BOMB;// 自機の状態の更新
+        ship.phase = APP_PHASE_NULL;
     }
 }
 static void GameShootBack(ENEMY* ix) { // 敵が弾を打ち返す
