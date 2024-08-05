@@ -5,7 +5,6 @@
 #include "Ship.h"
 #include "Shot.h"
 #include "Enemy.h"
-#include "Bullet.h"
 // 変数の定義
 u8 gameFlag;   // フラグ
 static void GameInitialize(void);
@@ -22,7 +21,6 @@ void GameUpdate(void) { // ゲームを更新する
     ShipUpdate();   // 自機の更新
     ShotUpdate();   // ショットの更新
     EnemyUpdate();  // 敵の更新
-    BulletUpdate(); // 弾の更新
 }
 static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
@@ -30,7 +28,6 @@ static void GameInitialize(void) { // ゲームを初期化する
     ShipInitialize();   // 自機の初期化
     ShotInitialize();   // ショットの初期化
     EnemyInitialize();  // 敵の初期化
-    BulletInitialize(); // 弾の初期化
     gameFlag = 0; // フラグの初期化
     // 状態の更新
     appState = GAME_STATE_LOAD;

@@ -5,7 +5,9 @@
     #define ENEMY_STATE_NULL       0
     #define ENEMY_STATE_IN         1
     #define ENEMY_STATE_STAY       2
-    #define ENEMY_STATE_BOMB       3
+    #define ENEMY_STATE_TURN       3
+    #define ENEMY_STATE_APPROACH   4
+    #define ENEMY_STATE_BOMB       5
 typedef struct {
     u8 state;
     u8 phase;

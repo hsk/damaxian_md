@@ -7,6 +7,9 @@
 // 定数の定義
 // 敵データ
 extern u8 enemyPointTable[];
+static u8 const enemyStayTable[] = {
+    0x7f, 0x00,
+};
 static u8 const enemySpritePatternTable[] = {
     0x00,
     0x00,
@@ -36,6 +39,8 @@ void EnemyInitialize(void) { // 敵を初期化する
 static void EnemyNull(ENEMY* ix);
 static void EnemyIn(ENEMY* ix);
 static void EnemyStay(ENEMY* ix);
+static void EnemyTurn(ENEMY* ix);
+static void EnemyApproach(ENEMY* ix);
 static void EnemyBomb(ENEMY* ix);
 static void EnemyDraw(ENEMY* ix);
 void EnemyUpdate(void) { // 敵を更新する
@@ -45,6 +50,8 @@ void EnemyUpdate(void) { // 敵を更新する
         if      (a == ENEMY_STATE_NULL)     EnemyNull(ix);     // なし
         else if (a == ENEMY_STATE_IN)       EnemyIn(ix);       // イン
         else if (a == ENEMY_STATE_STAY)     EnemyStay(ix);     // 待機
+        else if (a == ENEMY_STATE_TURN)     EnemyTurn(ix);     // ターン
+        else if (a == ENEMY_STATE_APPROACH) EnemyApproach(ix); // アプローチ
         else                                EnemyBomb(ix);     // 爆発
     }
 }
@@ -77,8 +84,55 @@ static void EnemyIn(ENEMY* ix) { // 敵がインする
 }
 static void EnemyStay(ENEMY* ix) { // 敵が待機する
     if (ix->phase==0) {
+        u8* hl = (void*)&enemyStayTable[0];
+        u8 a = random() & (*hl++);
+        a += *hl;
+        ix->count0 = a + 0x40;
         ix->phase++;// 状態の更新
     } // 待機の処理
+    if (gameFlag & (1<<GAME_FLAG_PLAYABLE)) {// 操作可能かどうか
+        if(ix->count0)      ix->count0--;// カウント0更新
+        else {
+            ix->state = ENEMY_STATE_TURN;// 状態の設定
+            ix->phase = 0;
+        }
+    }
+    EnemyDraw(ix);// 敵の描画
+}
+static void EnemyTurn(ENEMY* ix) { // 敵がターンする
+    if (ix->phase == 0) {
+        ix->turn = 0x02;// 回転の設定
+        if ((random()&0b00010000) == 0) ix->turn = 0xfe;
+        ix->phase++;// 状態の更新
+    }
+    ix->angle += ix->turn;// 方向の更新
+    if (ix->angle==0x40) ix->state = ENEMY_STATE_APPROACH;// 状態の更新
+    // 位置の更新
+    s16 hl = cosFix16(((u16)ix->angle)*4);
+    ix->x += hl + (hl>>1);// X 方向は x1.5 の移動
+    ix->y += sinFix16(((u16)ix->angle)*4)<<1;// Y 方向は x2.0 の移動
+    EnemyDraw(ix);
+}
+static void EnemyApproach(ENEMY* ix) { // 敵がアプローチする
+    // 方向の更新
+    u8 a = fix16ToInt(ix->x);
+    u8 b = fix16ToInt(ship.x);
+    if (a >= 0xe0) a = 0xfe;
+    else if (a == b) a = 0;
+    else if (a < b) a = 0xfe;
+    else a = 0x02;
+    a += ix->angle;
+    if (a < 0x22) a = 0x22;
+    else if (a > 0x5e) a = 0x5e;
+    ix->angle = a;
+    
+    ix->x += cosFix16(((u16)ix->angle)*4) << 1;// 位置の更新
+    ix->y += sinFix16(((u16)ix->angle)*4) << 1;
+    
+    if (ix->y >= FIX16(224+8)) {
+        ix->state = ENEMY_STATE_IN;
+        ix->phase = 0;
+    }
     EnemyDraw(ix);// 敵の描画
 }
 static void EnemyBomb(ENEMY* ix) { // 敵が爆発する
