@@ -18,6 +18,7 @@ static void GameStart(void);
 static void GamePlay(void);
 static void GameTimeUp(void);
 static void GameOver(void);
+static void GameHiscore(void);
 static void GameUnload(void);
 static void GameEnd(void);
 
@@ -28,6 +29,7 @@ void GameUpdate(void) { // ゲームを更新する
     else if (appState == GAME_STATE_PLAY)    GamePlay();      // プレイ
     else if (appState == GAME_STATE_TIMEUP)  GameTimeUp();    // タイムアップ
     else if (appState == GAME_STATE_OVER)    GameOver();      // オーバー
+    else if (appState == GAME_STATE_HISCORE) GameHiscore();   // ハイスコア
     else if (appState == GAME_STATE_UNLOAD)  GameUnload();    // アンロード
     else                                     GameEnd();       // 終了
     // 一時停止
@@ -114,7 +116,7 @@ static void GameTimeUp(void) { // ゲームがタイムアップする
     if (gameCount) return;
     // 更新
     // 状態の更新
-    appState = GAME_STATE_OVER;
+    appState = (appHiscore > appScore) ? GAME_STATE_OVER : GAME_STATE_HISCORE;
     appPhase = APP_PHASE_NULL;
 }
 static void GameOver(void) { // ゲームオーバーになる
@@ -134,6 +136,19 @@ static void GameOver(void) { // ゲームオーバーになる
         appState = GAME_STATE_UNLOAD;
         appPhase = APP_PHASE_NULL;
     }
+}
+static void GameHiscore(void) { // ハイスコアを更新する
+    if (appPhase==0) {// 初期化
+        VDP_drawText("HI SCORE",11,12);
+        // フラグの設定
+        gameFlag &= ~((1<<GAME_FLAG_PLAYABLE)|(1<<GAME_FLAG_PAUSE)|(1<<GAME_FLAG_STATUS));
+        appPhase++;// 状態の更新
+    }
+    // ハイスコアの処理
+    if (++appPhase < 60) return;
+    VDP_drawText("          ",10,12);
+    appState = GAME_STATE_UNLOAD;// 状態の更新
+    appPhase = APP_PHASE_NULL;
 }
 static void GameUnload(void) { // ゲームをアンロードする
     if (appPhase == 0) {// 初期化

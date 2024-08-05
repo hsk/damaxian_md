@@ -47,6 +47,7 @@ u32 sbcd32(u32 a,u32 b) {
 }
 
 u32 appScore = SCORE_INIT;
+u32 appHiscore = HISCORE_INIT;
 u8 score_flg=0;
 u32 appRate = 0x10;
 static char str[10];
@@ -54,6 +55,7 @@ void score_add(void) {
   appRate = abcd32(appRate,0x14);
   if(appRate>0x999)appRate=0x999;
   appScore = abcd32(appScore,appRate);
+  if(appHiscore<appScore)appHiscore=appScore;
   score_flg=0;
 }
 void scoreToStr(u32 score,char* score_str) {
@@ -68,6 +70,8 @@ void scoreToStr(u32 score,char* score_str) {
 void score_update(void) {
     scoreToStr(appScore,str);
     VDP_drawText(str,31,9);
+    scoreToStr(appHiscore,str);
+    VDP_drawText(str,31,6);
     scoreToStr(appTimer,str);
     VDP_drawText(&str[4],31+4,22);
     if (score_flg && appRate>0x10)appRate=sbcd32(appRate,0x1);
