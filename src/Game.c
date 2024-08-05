@@ -102,11 +102,41 @@ static void GameShootBack(ENEMY* ix) { // 敵が弾を打ち返す
         if (a < ix->x && ix->x <= a+FIX16(0x30)) return;
     }
     u16 angle = atan2Fix16(ship.x - ix->x,ship.y - ix->y);
-    BULLET* iy=BulletEntry(0x10);
-    if (iy==NULL) return;
+ 
+    static u8 const backTypeTable[] = {0x10, 0x11, 0x11, 0x10, 0x10}; // 撃ち返しデータ
+    static s8 const backAngleTable[] = {0, 48, -48, 96, -96};
+    static u8 const backSpeedTable[] = {
+        //0x03, 0x00, 0x02, 0x01, 0x02, 0x01, 0x03, 0x00, 0x03, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0x02, 0x01, 0x02, 0x00, 0x02, 0x00, 0x02, 0x01, 0x02, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x02, 0x00, 0x02, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    };
     // 弾の位置の設定
-    iy->x = ix->x;
-    iy->y = ix->y;
-    iy->spx = cosFix16(angle);
-    iy->spy = sinFix16(angle);
+    for(u8 b = 5,c = 0;b;c++,--b) {// 弾のエントリ
+        // メインの処理
+        BULLET* iy=BulletEntry(backTypeTable[c]);
+        if (iy==NULL) break;
+        iy->x = ix->x;
+        iy->y = ix->y;
+        u16 a = angle + backAngleTable[c];
+        s16 x = cosFix16(a);
+        s16 y = sinFix16(a);
+        iy->spx = 0;
+        iy->spy = 0;
+        u8* hl = (void*)(backSpeedTable+c*2);
+        for (u8 d = *hl++;d;d--) {
+            iy->spx += x;
+            iy->spy += y;
+        }
+        u8 e = *hl;
+        if(e) {
+            x = x>>1;
+            y = y>>1;
+            for(;e;e--) {
+                iy->spx += x;
+                iy->spy += y;
+            }
+        }
+    }
 }
