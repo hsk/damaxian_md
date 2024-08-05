@@ -43,6 +43,7 @@ static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
     SystemClearSprite();
     appTimer = 0x3000;
+    appRate = 0x10;
     appScore = 0x0;
     ShipInitialize();   // 自機の初期化
     ShotInitialize();   // ショットの初期化

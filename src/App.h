@@ -18,3 +18,4 @@ extern u8 appState;       // 状態
 extern u8 appPhase;
 extern u32 appScore;
 extern u32 appTimer;
+extern u32 appRate;

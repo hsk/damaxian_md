@@ -47,9 +47,14 @@ u32 sbcd32(u32 a,u32 b) {
 }
 
 u32 appScore = SCORE_INIT;
+u8 score_flg=0;
+u32 appRate = 0x10;
 static char str[10];
 void score_add(void) {
-  appScore = abcd32(appScore,0x100);
+  appRate = abcd32(appRate,0x14);
+  if(appRate>0x999)appRate=0x999;
+  appScore = abcd32(appScore,appRate);
+  score_flg=0;
 }
 void scoreToStr(u32 score,char* score_str) {
   int j=28;
@@ -65,7 +70,17 @@ void score_update(void) {
     VDP_drawText(str,31,9);
     scoreToStr(appTimer,str);
     VDP_drawText(&str[4],31+4,22);
+    if (score_flg && appRate>0x10)appRate=sbcd32(appRate,0x1);
+    score_flg=1;
+    scoreToStr(appRate,str);
+    str[8]=str[7];
+    str[7]='.';
+    VDP_drawText(&str[2],32,20);
+    str[8]=0;
 }
 void score_init(void) {
+    score_flg=1;
     str[8]=0;
+    str[9]=0;
+    //sprintf(str,"aaaaaaaa");
 }
