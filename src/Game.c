@@ -43,6 +43,7 @@ static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
     SystemClearSprite();
     appTimer = 0x3000;
+    appScore = 0x0;
     ShipInitialize();   // 自機の初期化
     ShotInitialize();   // ショットの初期化
     EnemyInitialize();  // 敵の初期化
@@ -161,6 +162,7 @@ static void GameCheckShotEnemy(void) { // ショットと敵のヒットチェ�
             ix->nodamage = 0x80;// 敵のノーダメージの更新
             ix->state = ENEMY_STATE_BOMB;// 敵の状態の更新
             ix->phase = APP_PHASE_NULL;
+            score_add();
             GameShootBack(ix);// 敵の撃ち返し
             shot->state = SHOT_STATE_NULL;// ショットの状態の更新
         }
@@ -195,6 +197,7 @@ static void GameCheckShipEnemy(void) { // 自機と敵のヒットチェック�
         a = ix->y-ship.y;
         if (a < 0) a = -a;
         if (a >= FIX16(6)) continue;
+        score_add();
         // 更新
         ix->nodamage = 0x80; // 敵のノーダメージの更新
         ix->state = ENEMY_STATE_BOMB;// 敵の状態の更新

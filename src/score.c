@@ -46,7 +46,11 @@ u32 sbcd32(u32 a,u32 b) {
   return res;
 }
 
+u32 appScore = SCORE_INIT;
 static char str[10];
+void score_add(void) {
+  appScore = abcd32(appScore,0x100);
+}
 void scoreToStr(u32 score,char* score_str) {
   int j=28;
   for(;j>=1;j-=4) {
@@ -57,6 +61,8 @@ void scoreToStr(u32 score,char* score_str) {
 }
 
 void score_update(void) {
+    scoreToStr(appScore,str);
+    VDP_drawText(str,31,9);
     scoreToStr(appTimer,str);
     VDP_drawText(&str[4],31+4,22);
 }

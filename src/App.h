@@ -16,4 +16,5 @@ void AppUpdate(void);
 extern u8 appMode;        // モード
 extern u8 appState;       // 状態
 extern u8 appPhase;
+extern u32 appScore;
 extern u32 appTimer;
