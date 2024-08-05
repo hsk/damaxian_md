@@ -141,7 +141,7 @@ static void GameUnload(void) { // ゲームをアンロードする
     appState = GAME_STATE_END; // 状態の更新
 }
 static void GameEnd(void) { // ゲームを終了する
-    appMode = APP_MODE_GAME; // モードの更新
+    appMode = APP_MODE_TITLE; // モードの更新
     appState = 0; // 状態の更新
 }
 

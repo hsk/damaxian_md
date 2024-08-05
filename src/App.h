@@ -4,7 +4,8 @@
 // モード
 #define APP_MODE_INIT       0
 #define APP_MODE_LOAD       1
-#define APP_MODE_GAME       2
+#define APP_MODE_TITLE      2
+#define APP_MODE_GAME       3
 // 状態
 #define APP_STATE_NULL      0
 #define APP_PHASE_NULL      0
