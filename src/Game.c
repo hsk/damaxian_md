@@ -3,6 +3,7 @@
 #include "App.h"
 #include "Game.h"
 #include "Ship.h"
+#include "Enemy.h"
 // 変数の定義
 u8 gameFlag;   // フラグ
 static void GameInitialize(void);
@@ -17,11 +18,13 @@ void GameUpdate(void) { // ゲームを更新する
     // 一時停止
     if (gameFlag & (1 << GAME_FLAG_PAUSE)) return;
     ShipUpdate();   // 自機の更新
+    EnemyUpdate();  // 敵の更新
 }
 static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
     SystemClearSprite();
     ShipInitialize();   // 自機の初期化
+    EnemyInitialize();  // 敵の初期化
     gameFlag = 0; // フラグの初期化
     // 状態の更新
     appState = GAME_STATE_LOAD;
