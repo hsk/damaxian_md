@@ -62,6 +62,10 @@ void SystemInitialize(void) {
             }
         }
     }
+    titleInd = curTileInd;
+    curTileInd += title_img.tileset->numTile;
+    backInd=curTileInd;
+    curTileInd += bg_img.tileset->numTile;
 
     fsprs[64].numSpr=0;
     PAL_setPalette(PAL1, spr.palette->data, CPU);

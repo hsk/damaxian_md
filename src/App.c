@@ -3,6 +3,7 @@
 #include "Math.h"
 #include "App.h"
 #include "Game.h"
+#include "Back.h"
 // 変数の定義
 u8 appMode;         // モード
 u8 appState;        // 状態
@@ -12,6 +13,8 @@ void AppInitialize(void) { // アプリケーションを初期化する
     appMode = APP_MODE_LOAD;// モードの初期化
 }
 static void AppLoad(void) { // アプリケーションを読み込む
+    BackLoad();
+    BackUpdate();
     appMode = APP_MODE_GAME;// モードの更新
     appState = 0;// 状態の更新
 }

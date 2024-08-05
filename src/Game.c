@@ -7,6 +7,7 @@
 #include "Shot.h"
 #include "Enemy.h"
 #include "Bullet.h"
+#include "Back.h"
 // 変数の定義
 u8 gameFlag;   // フラグ
 static void GameInitialize(void);
@@ -24,6 +25,7 @@ void GameUpdate(void) { // ゲームを更新する
     ShotUpdate();   // ショットの更新
     EnemyUpdate();  // 敵の更新
     BulletUpdate(); // 弾の更新
+    BackUpdate();
 }
 static void GameInitialize(void) { // ゲームを初期化する
     // スプライトのクリア
