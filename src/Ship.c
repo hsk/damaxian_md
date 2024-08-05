@@ -2,6 +2,7 @@
 #include "bios.h"
 #include "Game.h"
 #include "Ship.h"
+#include "Shot.h"
 // 変数の定義
 SHIP ship; // パラメータ
 void ShipInitialize(void) { // 自機を初期化する
@@ -32,6 +33,17 @@ static void ShipPlay(void) { // 自機を操作する
             if (ship.x>=FIX16(0x8+2)) ship.x-=FIX16(2);
         if(input&BUTTON_RIGHT) // →が押された
             if (ship.x<FIX16(0xb8)) ship.x+=FIX16(2);
+        if (ship.phase==1) {
+            // 発射処理
+            if(input&BUTTON_A) {// A ボタンが押された
+                ShotEntry();// ショットのエントリ
+                ship.phase = 6;
+            }
+        } else if(!(input&BUTTON_A)) {
+            ship.phase=1;
+        } else {
+            ship.phase--;
+        }
     }
     // 描画の開始
     SystemSetSprite(0, ship.x,ship.y);
